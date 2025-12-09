@@ -1,0 +1,40 @@
+<p id="success-message"></p>
+<p id="error-message"></p>
+<form id="registerForm">
+  <input type="email" name="email" required placeholder="Email">
+  <input type="password" name="password" required placeholder="Password">
+  <button type="submit">Register</button>
+</form>
+<script>
+document.getElementById('registerForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = e.target.email.value;
+  const password = e.target.password.value;
+  const success = document.getElementById('success-message');
+  const error = document.getElementById('error-message');
+  success.textContent = '';
+  error.textContent = '';
+
+  if (password.length < 6) {
+    error.textContent = 'Error during registration';
+    return;
+  }
+
+  try {
+    const res = await fetch('/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      localStorage.setItem('token', data.access_token); // save JWT
+      success.textContent = 'Registration successful';
+    } else {
+      error.textContent = 'Error during registration';
+    }
+  } catch {
+    error.textContent = 'Error during registration';
+  }
+});
+</script>
